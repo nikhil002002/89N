@@ -5,7 +5,7 @@
  *      Author: Pranav Sarda and Nikhil Rajendran
  */
 
-
+#include <stdlib.h>
 #include <sys/socket.h>
 //#include <unistd.h>
 #include <arpa/inet.h>
@@ -13,98 +13,110 @@
 #include <string.h>
 #include "IpDomainDossierHeaders.h"
 
-static const int MAXPENDINGREQ = 5; // Maximum outstanding connection requests allowed
 
+void ProcessTCPClient(int clientSocket) {
+  char buffer[BUFSIZE]; // Buffer for storing incoming data
 
-int SetupTCPServerSocket(const char *service) {
-  // Construct the server address structure
-  struct addrinfo addrCriteria;                   // Criteria for address match
-  memset(&addrCriteria, 0, sizeof(addrCriteria)); // Zero out structure
-  addrCriteria.ai_family = AF_UNSPEC;             // Any address family
-  addrCriteria.ai_flags = AI_PASSIVE;             // Accept on any address/port
-  addrCriteria.ai_socktype = SOCK_STREAM;         // Only stream sockets
-  addrCriteria.ai_protocol = IPPROTO_TCP;         // Only TCP protocol
-
-  struct addrinfo *servAddr; // List of server addresses
-  int rtnVal = getaddrinfo(NULL, service, &addrCriteria, &servAddr);
-  if (rtnVal != 0)
-    DieWithUserMessage("getaddrinfo() failed", gai_strerror(rtnVal));
-
-  int servSock = -1;
-  for (struct addrinfo *addr = servAddr; addr != NULL; addr = addr->ai_next) {
-    // Create a TCP socket
-    servSock = socket(addr->ai_family, addr->ai_socktype,
-        addr->ai_protocol);
-    if (servSock < 0)
-      continue;       // Socket creation failed; try next address
-
-    // Bind to the local address and set socket to listen
-    if ((bind(servSock, addr->ai_addr, addr->ai_addrlen) == 0) &&
-        (listen(servSock, MAXPENDINGREQ) == 0)) {
-      // Print local address of socket
-      struct sockaddr_storage localAddr;
-      socklen_t addrSize = sizeof(localAddr);
-      if (getsockname(servSock, (struct sockaddr *) &localAddr, &addrSize) < 0)
-        DieWithSystemMessage("getsockname() failed");
-      fputs("Binding to ", stdout);
-      PrintSocketAddress((struct sockaddr *) &localAddr, stdout);
-      fputc('\n', stdout);
-      break;       // Bind and listen successful
-    }
-
-    close(servSock);  // Close and try again
-    servSock = -1;
-  }
-
-  // Free address list allocated by getaddrinfo()
-  freeaddrinfo(servAddr);
-
-  return servSock;
-}
-
-int AcceptTCPConnection(int servSock) {
-  struct sockaddr_storage clntAddr; // Client address
-  // Set length of client address structure (in-out parameter)
-  socklen_t clntAddrLen = sizeof(clntAddr);
-
-  // Wait for a client to connect
-  int clntSock = accept(servSock, (struct sockaddr *) &clntAddr, &clntAddrLen);
-  if (clntSock < 0)
-    DieWithSystemMessage("accept() failed");
-
-  // clntSock is connected to a client!
-
-  fputs("Handling client ", stdout);
-  PrintSocketAddress((struct sockaddr *) &clntAddr, stdout);
-  fputc('\n', stdout);
-
-  return clntSock;
-}
-
-void HandleTCPClient(int clntSocket) {
-  char buffer[BUFSIZE]; // Buffer for echo string
-
-  // Receive message from client
-  ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
+  // Receive transmitted message from client
+  ssize_t numBytesRcvd = recv(clientSocket, buffer, BUFSIZE, 0);
   if (numBytesRcvd < 0)
-    DieWithSystemMessage("recv() failed");
+    DieWithErrorMessage("Server Receive failed","");
+
+  processCommand(buffer,numBytesRcvd);
 
   // Send received string and receive again until end of stream
   while (numBytesRcvd > 0) { // 0 indicates end of stream
     // Echo message back to client
-    ssize_t numBytesSent = send(clntSocket, buffer, numBytesRcvd, 0);
+    ssize_t numBytesSent = send(clientSocket, buffer, numBytesRcvd, 0);
+
     if (numBytesSent < 0)
-      DieWithSystemMessage("send() failed");
+      DieWithErrorMessage("send() failed","");
     else if (numBytesSent != numBytesRcvd)
-      DieWithUserMessage("send()", "sent unexpected number of bytes");
+    	DieWithErrorMessage("send()", "sent unexpected number of bytes");
 
     // See if there is more data to receive
-    numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
-    if (numBytesRcvd < 0)
-      DieWithSystemMessage("recv() failed");
+//    numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
+//    if (numBytesRcvd < 0)
+//      DieWithSystemMessage("recv() failed");
   }
 
   close(clntSocket); // Close client socket
 }
 
+void processCommand(const void *dataBuffer, const int dataLength)
+{
+	char *chDataBufferptr=dataBuffer;
+
+	int command=atoi(chDataBufferptr);
+	switch (command)
+				case 1:
+					processData(dataBuffer+2,dataLength--,1);
+					break;
+				case 2:
+					processData(dataBuffer+2,dataLength--,2);
+					break;
+				case 3:
+					processData(dataBuffer+2,dataLength--,3);
+					break;
+				case 4:
+					//TODO call mrr
+					break;
+				case 5:
+					//TODO call lrr
+					break;
+				case 6:
+					//TODO Call End Function
+					break;
+				default:
+					break;
+
+	int bufferLen=dataLength-1;
+	char *endlength;
+	for(;*(dataBuffer)+1!= 32 && --dataLength>=0;)
+	{
+		endlength=dataBuffer+1;
+	}
+}
+
+char **processData(const void *dataBuffer, const int dataLength,int command)
+{
+	char* endOfDataBuf=dataBuffer+dataLength;
+	char** maPtrData;
+	if(command==1 || command==3)
+	{
+		//Initializing Pointer to an array of String Pointers
+		if((maPtrData=malloc(1*sizeof(char*)))==NULL)
+			DieWithErrorMessage("Memory allocation Failed for 1st parameter","");
+	}else
+	{
+		if((maPtrData=malloc(1*sizeof(char*)))==NULL)
+			DieWithErrorMessage("Memory allocation Failed for 1st parameter","");
+		int counter =0;
+		*maPtrData[counter]=dataBuffer;
+		dataBuffer++;
+
+		while(dataBuffer!=endOfDataBuf)
+		{
+			counter++;
+			if((maPtrData= realloc(maPtrData,1*sizeof(char*)))==NULL)
+				DieWithErrorMessage("Memory allocation Failed for additional parameter","");
+			*maPtrData[counter]=dataBuffer;
+			dataBuffer++;
+		}
+	}
+	return maPtrData;
+}
+void DieWithErrorMessage(const char *msg, const char *detail) {
+  perror(msg);
+  fputs(msg, stderr);
+  fputs(": ", stderr);
+  fputs(detail, stderr);
+  fputc('\n', stderr);
+  exit(1);
+}
+
+//void DieWithSystemMessage(const char *msg) {
+//  perror(msg);
+//  exit(1);
+//}
 

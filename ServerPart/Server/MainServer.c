@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <sys/types.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -15,48 +15,56 @@ int main(int argc, char *argv[]) {
   if (argc != 4) // Test for correct number of arguments else Exit
 	  DieWithErrorMessage("Parameter(s)", "<Server Port> <File Name> <Time Gap>");
 
-  in_port_t servPort = atoi(argv[1]); // First arg:  local port
+  in_port_t serverPortNo = atoi(argv[1]); // First argument:  local port
 
-  // Create socket for incoming connections
+  char *fileNamePtr=argv[2];	//Second Argument: File Name
+
+  int timeGap= atoi(argv[3]); //Third Argument: TIME Gap
+
+
+  // Create Server Socket
   int servSock; // Socket descriptor for server
-  if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-    DieWithSystemMessage("socket() failed");
+  if ((servSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+    DieWithErrorMessage("Server Socket() creation failed","");
 
   // Construct local address structure
-  struct sockaddr_in servAddr;                  // Local address
-  memset(&servAddr, 0, sizeof(servAddr));       // Zero out structure
-  servAddr.sin_family = AF_INET;                // IPv4 address family
-  servAddr.sin_addr.s_addr = htonl(INADDR_ANY); // Any incoming interface
-  servAddr.sin_port = htons(servPort);          // Local port
+  struct sockaddr_in serverAddr;                  // Local address
+  memset(&serverAddr, 0, sizeof(serverAddr));     // Initialize Structure to Zero
+  serverAddr.sin_family = AF_INET;                // Set Address Family Type
+  serverAddr.sin_addr.s_addr = htonl(INADDR_ANY); // Listen to any incoming interface
+  serverAddr.sin_port = htons(serverPortNo);      // Server port
 
   // Bind to the local address
-  if (bind(servSock, (struct sockaddr*) &servAddr, sizeof(servAddr)) < 0)
-    DieWithSystemMessage("bind() failed");
+  if (bind(servSock, (struct sockaddr*) &serverAddr, sizeof(serverAddr)) < 0)
+    DieWithErrorMessage("Server bind() operation failed");
 
-  // Mark the socket so it will listen for incoming connections
+  // Listen the socket for incoming connections
   if (listen(servSock, MAXPENDINGREQ) < 0)
-    DieWithSystemMessage("listen() failed");
+	DieWithErrorMessage("Server listen() operation failed");
 
-  for (;;) { // Run forever
-    struct sockaddr_in clntAddr; // Client address
+  for (;;) {
+
+	// Start Server
+    struct sockaddr_in clientAddr; // Client address
     // Set length of client address structure (in-out parameter)
-    socklen_t clntAddrLen = sizeof(clntAddr);
+    socklen_t clntAddrLen = sizeof(clientAddr);
 
     // Wait for a client to connect
-    int clntSock = accept(servSock, (struct sockaddr *) &clntAddr, &clntAddrLen);
+    int clntSock = accept(servSock, (struct sockaddr *) &clientAddr, &clntAddrLen);
+
     if (clntSock < 0)
-      DieWithSystemMessage("accept() failed");
+      DieWithErrorMessage("Server accept() operation failed");
 
-    // clntSock is connected to a client!
 
-    char clntName[INET_ADDRSTRLEN]; // String to contain client address
-    if (inet_ntop(AF_INET, &clntAddr.sin_addr.s_addr, clntName,
-        sizeof(clntName)) != NULL)
-      printf("Handling client %s/%d\n", clntName, ntohs(clntAddr.sin_port));
+    char clntName[INET_ADDRSTRLEN]; // String to contain client address in Dotted Decimal
+    if (inet_ntop(PF_INET, &clientAddr.sin_addr.s_addr, clntName, sizeof(clntName)) != NULL)
+      printf("Receiving from Client IP %s/ Port: %d\n", clntName, ntohs(clientAddr.sin_port));
     else
-      puts("Unable to get client address");
+      perror("Unable to Retrieve Client address");
+      //TODO Continue loop to listen again
 
-    HandleTCPClient(clntSock);
+    ProcessTCPClient(clntSock);
+
   }
-  // NOT REACHED
+
 }
