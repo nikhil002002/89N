@@ -5,10 +5,9 @@
  *      Author: Nikhil Rajendran and Pranav Sarda
  */
 
+#pragma once
 #ifndef IPDOMAINDOSSIERHEADERS_H_
 #define IPDOMAINDOSSIERHEADERS_H_
-
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -31,9 +30,22 @@ void HandleTCPClient(int clntSocket);
 // Create and connect a new TCP client socket
 int SetupTCPClientSocket(const char *server, const char *service);
 
+void domainIP(char *domainName);
+
+
+char **findIPfromDomainName(char *hostname);
+
+
 enum sizeConstants {
   MAXSTRINGLENGTH = 128,
   BUFSIZE = 512,
 };
 
+struct database
+{
+	char domainName[20];
+	int numTimes;
+	char ipAddrs[10][16];
+	struct database *nextRecord;
+};
 #endif /* IPDOMAINDOSSIERHEADERS_H_ */
