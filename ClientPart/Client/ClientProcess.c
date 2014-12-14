@@ -61,11 +61,11 @@ int main(int argc, char *argv[]) {
   int serverPort = atoi(argv[2]); // Server Port number
 
 // Create a  TCP socket
-  int clientSock = SetupTCPClientSocket(serverIP, serverPort);
+  int clientSock = SetupTCPClientSocket(serverIP, argv[2]);
   if (clientSock < 0)
     DieWithErrorMessage("SetupTCPClientSocket() failed", "unable to connect");
 
-  size_t bufStringLen = strlen(*toSendBuffer); // Determine input length
+  size_t bufStringLen = (size_t)strlen(*toSendBuffer); // Determine input length
 
   // Send the string to the server
   ssize_t sentBytes = send(clientSock, toSendBuffer, bufStringLen, 0);
