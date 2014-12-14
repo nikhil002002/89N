@@ -11,7 +11,7 @@
 #include <arpa/inet.h>
 //#include <netdb.h>
 #include <string.h>
-
+#include<stdio.h>
 #include "IpDomainDossierHeaders.h"
 
 
@@ -23,28 +23,20 @@ void ProcessTCPClient(int clientSocket) {
   if (numBytesRcvd < 0)
     DieWithErrorMessage("Server Receive failed","");
 
-  processCommand(buffer,numBytesRcvd);
+  char *toSendBuffer= processCommand(buffer,numBytesRcvd);
+  ssize_t sendBufferLength=strlen(toSendBuffer)+1;
 
-//  // Send received string and receive again until end of stream
-//  while (numBytesRcvd > 0) { // 0 indicates end of stream
-//    // Echo message back to client
-//    ssize_t numBytesSent = send(clientSocket, buffer, numBytesRcvd, 0);
-//
-//    if (numBytesSent < 0)
-//      DieWithErrorMessage("send() failed","");
-//    else if (numBytesSent != numBytesRcvd)
-//    	DieWithErrorMessage("send()", "sent unexpected number of bytes");
+    ssize_t numBytesSent = send(clientSocket, toSendBuffer,sendBufferLength , 0);
+    if (numBytesSent < 0)
+      DieWithErrorMessage("send() failed","");
+    else if (numBytesSent != sendBufferLength)
+    	DieWithErrorMessage("send()", "sent unexpected number of bytes");
 
-    // See if there is more data to receive
-//    numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
-//    if (numBytesRcvd < 0)
-//      DieWithSystemMessage("recv() failed");
-//  }
-
+  free(toSendBuffer);
   close(clientSocket); // Close client socket
 }
 
-void processCommand(const char *dataBuffer, const int dataLength)
+char* processCommand(const char *dataBuffer, const int dataLength)
 {
 	//char *chDataBufferptr=dataBuffer;
 
@@ -52,31 +44,51 @@ void processCommand(const char *dataBuffer, const int dataLength)
 	int length=dataLength-2;
 	switch (command)
 	{
-				case 1:
-				{
-					char **param=processData(dataBuffer+2,length,1);
-					domainIP(param[0]);
-					break;
-				}
-				case 2:
-					processData(dataBuffer+2,length,2);
-					break;
-				case 3:
-					processData(dataBuffer+2,length,3);
-					break;
-				case 4:
-					//TODO call mrr
-					break;
-				case 5:
-					//TODO call lrr
-					break;
-				case 6:
-					//TODO Call End Function
-					printf("End");
-					exit(0);
-					break;
-				default:
-					break;
+		case 1:
+		{
+			char **param=processData(dataBuffer+2,length,1);
+			char** ipList=domainIP(param[0]);
+			int ipcount=0;
+			char** tempIpList;
+			for(tempIpList=ipList;*(tempIpList)!=NULL;tempIpList++)
+			{
+				ipcount++;
+			}
+
+			int lenBuff=strlen(param[0])+(ipcount*16)+50;
+			char *toSendBuffer=malloc(lenBuff);
+
+			strcat(toSendBuffer,"Requested Domain :");
+			strcat(toSendBuffer,param[0]);
+			strcat(toSendBuffer," IP Add: ");
+
+			for(tempIpList=ipList;*(tempIpList)!=NULL;tempIpList++)
+			{
+				strcat(toSendBuffer,ipList[--ipcount]);
+				strcat(toSendBuffer," ");
+			}
+			return toSendBuffer;
+			break;
+		}
+		case 2:
+			processData(dataBuffer+2,length,2);
+			break;
+		case 3:
+			processData(dataBuffer+2,length,3);
+			break;
+		case 4:
+			//TODO call mrr
+			break;
+		case 5:
+			//TODO call lrr
+			break;
+		case 6:
+			//TODO Call End Function
+			printf("End");
+			exit(0);
+			break;
+		default:
+			break;
 	}
 	int bufferLen=dataLength-1;
 	const char *endlength;
@@ -84,6 +96,7 @@ void processCommand(const char *dataBuffer, const int dataLength)
 	{
 		endlength=dataBuffer+1;
 	}
+
 }
 
 char **processData(const char *dataBuffer, const int dataLength,int command)

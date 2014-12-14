@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   if (bind(servSock, (struct sockaddr*) &serverAddr, sizeof(serverAddr)) < 0)
     DieWithErrorMessage("Server bind() operation failed","");
 
-  // Listen the socket for incoming connections
+  // Listen from socket for incoming connections
   if (listen(servSock, MAXPENDINGREQ) < 0)
 	DieWithErrorMessage("Server listen() operation failed","");
 

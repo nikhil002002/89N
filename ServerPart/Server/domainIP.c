@@ -16,7 +16,7 @@
 #include "IpDomainDossierHeaders.h"
 
 
-void domainIP(char *webName)
+char** domainIP(char *webName)
 //char *domainIP(struct database *fRecord, char *webName, char *message)
 {
 //	struct database *currentRecord;
@@ -61,10 +61,8 @@ void domainIP(char *webName)
 //	else
 //	{
 		char** ipList=findIPfromDomainName(webName);
-		for(; ipList != NULL; ipList++)
-		{
-			printf("%s ",&(**ipList));
-		}
+
+		return ipList;
 //	}
 }
 
@@ -130,7 +128,7 @@ char **findIPfromDomainName(char *hostname)
 				  	 DieWithErrorMessage("Memory allocation Failed for IPs","");
 				  strcpy(maIPList[index-2], clntName);
 
-				  maIPList[index-1]=NULL;
+				  maIPList[index-1]= NULL;
 				  index++;
 			  }
 	    	printf("%s ", inet_ntoa(*addr_list[i]));
