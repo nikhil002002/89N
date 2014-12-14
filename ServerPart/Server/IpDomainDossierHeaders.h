@@ -32,7 +32,7 @@ int SetupTCPClientSocket(const char *server, const char *service);
 
 void domainIP(char *domainName);
 
-
+void ProcessTCPClient(int clientSocket);
 char **findIPfromDomainName(char *hostname);
 void processCommand(const char *dataBuffer, const int dataLength);
 char **processData(const char *dataBuffer, const int dataLength,int command);

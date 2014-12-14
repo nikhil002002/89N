@@ -25,21 +25,21 @@ void ProcessTCPClient(int clientSocket) {
 
   processCommand(buffer,numBytesRcvd);
 
-  // Send received string and receive again until end of stream
-  while (numBytesRcvd > 0) { // 0 indicates end of stream
-    // Echo message back to client
-    ssize_t numBytesSent = send(clientSocket, buffer, numBytesRcvd, 0);
-
-    if (numBytesSent < 0)
-      DieWithErrorMessage("send() failed","");
-    else if (numBytesSent != numBytesRcvd)
-    	DieWithErrorMessage("send()", "sent unexpected number of bytes");
+//  // Send received string and receive again until end of stream
+//  while (numBytesRcvd > 0) { // 0 indicates end of stream
+//    // Echo message back to client
+//    ssize_t numBytesSent = send(clientSocket, buffer, numBytesRcvd, 0);
+//
+//    if (numBytesSent < 0)
+//      DieWithErrorMessage("send() failed","");
+//    else if (numBytesSent != numBytesRcvd)
+//    	DieWithErrorMessage("send()", "sent unexpected number of bytes");
 
     // See if there is more data to receive
 //    numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
 //    if (numBytesRcvd < 0)
 //      DieWithSystemMessage("recv() failed");
-  }
+//  }
 
   close(clientSocket); // Close client socket
 }
