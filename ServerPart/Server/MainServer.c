@@ -64,7 +64,9 @@ int main(int argc, char *argv[]) {
 //      //TODO Continue loop to listen again
 
     void *dataBuffer="1\0www.yahoo.com";
-    processCommand(dataBuffer,strlen(dataBuffer));
+    printf("%s", (char*)dataBuffer);
+    processCommand(dataBuffer,15);
+
     //ProcessTCPClient(clntSock);
 
   }

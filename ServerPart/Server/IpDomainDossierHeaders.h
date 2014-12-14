@@ -5,7 +5,7 @@
  *      Author: Nikhil Rajendran and Pranav Sarda
  */
 
-#pragma once
+//#pragma once
 #ifndef IPDOMAINDOSSIERHEADERS_H_
 #define IPDOMAINDOSSIERHEADERS_H_
 #include <stdbool.h>
@@ -34,7 +34,8 @@ void domainIP(char *domainName);
 
 
 char **findIPfromDomainName(char *hostname);
-
+void processCommand(const char *dataBuffer, const int dataLength);
+char **processData(const char *dataBuffer, const int dataLength,int command);
 
 enum sizeConstants {
   MAXSTRINGLENGTH = 128,

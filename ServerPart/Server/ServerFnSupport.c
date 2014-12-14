@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 #include <sys/socket.h>
-//#include <unistd.h>
+#include <unistd.h>
 #include <arpa/inet.h>
 //#include <netdb.h>
 #include <string.h>
@@ -41,24 +41,28 @@ void ProcessTCPClient(int clientSocket) {
 //      DieWithSystemMessage("recv() failed");
   }
 
-  close(clntSocket); // Close client socket
+  close(clientSocket); // Close client socket
 }
 
-void processCommand(const void *dataBuffer, const int dataLength)
+void processCommand(const char *dataBuffer, const int dataLength)
 {
-	char *chDataBufferptr=dataBuffer;
+	//char *chDataBufferptr=dataBuffer;
 
-	int command=atoi(chDataBufferptr);
+	int command=atoi(dataBuffer);
+	int length=dataLength-2;
 	switch (command)
+	{
 				case 1:
-					char** param=processData(dataBuffer+2,dataLength--,1);
-					domainIP(*param[0]);
+				{
+					char **param=processData(dataBuffer+2,length,1);
+					domainIP(param[0]);
 					break;
+				}
 				case 2:
-					processData(dataBuffer+2,dataLength--,2);
+					processData(dataBuffer+2,length,2);
 					break;
 				case 3:
-					processData(dataBuffer+2,dataLength--,3);
+					processData(dataBuffer+2,length,3);
 					break;
 				case 4:
 					//TODO call mrr
@@ -73,30 +77,31 @@ void processCommand(const void *dataBuffer, const int dataLength)
 					break;
 				default:
 					break;
-
+	}
 	int bufferLen=dataLength-1;
-	char *endlength;
-	for(;*(dataBuffer)+1!= 32 && --dataLength>=0;)
+	const char *endlength;
+	for(;(*(dataBuffer+1))!= 32 && --bufferLen>=0;)
 	{
 		endlength=dataBuffer+1;
 	}
 }
 
-char **processData(const void *dataBuffer, const int dataLength,int command)
+char **processData(const char *dataBuffer, const int dataLength,int command)
 {
-	char* endOfDataBuf=dataBuffer+dataLength;
+	const char* endOfDataBuf=dataBuffer+dataLength;
 	char** maPtrData;
 	if(command==1 || command==3)
 	{
 		//Initializing Pointer to an array of String Pointers
 		if((maPtrData=malloc(1*sizeof(char*)))==NULL)
 			DieWithErrorMessage("Memory allocation Failed for 1st parameter","");
+		maPtrData[0]=(char *)dataBuffer;
 	}else
 	{
 		if((maPtrData=malloc(1*sizeof(char*)))==NULL)
 			DieWithErrorMessage("Memory allocation Failed for 1st parameter","");
 		int counter =0;
-		*maPtrData[counter]=dataBuffer;
+		maPtrData[counter]=(char *)dataBuffer;
 		dataBuffer++;
 
 		while(dataBuffer!=endOfDataBuf)
@@ -104,7 +109,7 @@ char **processData(const void *dataBuffer, const int dataLength,int command)
 			counter++;
 			if((maPtrData= realloc(maPtrData,1*sizeof(char*)))==NULL)
 				DieWithErrorMessage("Memory allocation Failed for additional parameter","");
-			*maPtrData[counter]=dataBuffer;
+			maPtrData[counter]=(char *)*dataBuffer;
 			dataBuffer++;
 		}
 	}
