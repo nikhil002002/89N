@@ -33,6 +33,7 @@ char **findIPfromDomainName(char *hostname);
 char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord);
 char **processData(const char *dataBuffer, const int dataLength,int command);
 struct database *readFile(char *fName, char *message);
+struct database *deleteRecord(struct database *fRecord, char *webName, char *message);
 
 enum sizeConstants {
   MAXSTRINGLENGTH = 128,

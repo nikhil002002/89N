@@ -71,21 +71,25 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 			return toSendBuffer;
 			break;
 		}
-		case 2:
+		case 2:	//Add Record
 			{
 				char *mssg;
 				fRecord = addRecord(fRecord,dataBuffer+2,mssg);
-				processData(dataBuffer+2,length,2);
+				//processData(dataBuffer+2,length,2);
 			}
 			break;
-		case 3:
-			processData(dataBuffer+2,length,3);
+		case 3:	//Delete Record
+			char *mssg;
+			fRecord=deleteRecord(fRecord,dataBuffer+2,mssg);
+			//processData(dataBuffer+2,length,3);
 			break;
-		case 4:
-			//TODO call mrr
+		case 4:		//Most Requested Records
+			char *mssg;
+			fRecord=mostReqRecord(fRecord,mssg);
 			break;
-		case 5:
-			//TODO call lrr
+		case 5:		//Least Requested Records
+			char *mssg;
+			fRecord=leastReqRecord(fRecord,mssg);
 			break;
 		case 6:
 			//TODO Call End Function
