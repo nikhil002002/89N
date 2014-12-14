@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 //    printf("%s", (char*)dataBuffer);
 //    processCommand(dataBuffer,15);
 
-    ProcessTCPClient(clntSock);
+    ProcessTCPClient(clntSock,dbLstPtr);
 
   }
 

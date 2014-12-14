@@ -11,11 +11,11 @@
 #include <arpa/inet.h>
 //#include <netdb.h>
 #include <string.h>
-#include<stdio.h>
+#include <stdio.h>
 #include "IpDomainDossierHeaders.h"
 
 
-void ProcessTCPClient(int clientSocket) {
+void ProcessTCPClient(int clientSocket,struct database *fRecord) {
   char buffer[BUFSIZE]; // Buffer for storing incoming data
 
   // Receive transmitted message from client
@@ -23,7 +23,7 @@ void ProcessTCPClient(int clientSocket) {
   if (numBytesRcvd < 0)
     DieWithErrorMessage("Server Receive failed","");
 
-  char *toSendBuffer= processCommand(buffer,numBytesRcvd);
+  char *toSendBuffer= processCommand(buffer,numBytesRcvd,fRecord);
   ssize_t sendBufferLength=strlen(toSendBuffer)+1;
 
     ssize_t numBytesSent = send(clientSocket, toSendBuffer,sendBufferLength , 0);
@@ -36,7 +36,7 @@ void ProcessTCPClient(int clientSocket) {
   close(clientSocket); // Close client socket
 }
 
-char* processCommand(const char *dataBuffer, const int dataLength)
+char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord)
 {
 	//char *chDataBufferptr=dataBuffer;
 
@@ -47,7 +47,7 @@ char* processCommand(const char *dataBuffer, const int dataLength)
 		case 1:
 		{
 			char **param=processData(dataBuffer+2,length,1);
-			char** ipList=domainIP(param[0]);
+			char** ipList= domainIP(fRecord,param[0]);
 			int ipcount=0;
 			char** tempIpList;
 			for(tempIpList=ipList;*(tempIpList)!=NULL;tempIpList++)
@@ -67,11 +67,16 @@ char* processCommand(const char *dataBuffer, const int dataLength)
 				strcat(toSendBuffer,ipList[--ipcount]);
 				strcat(toSendBuffer," ");
 			}
+			free(ipList);
 			return toSendBuffer;
 			break;
 		}
 		case 2:
-			processData(dataBuffer+2,length,2);
+			{
+				char *mssg;
+				fRecord = addRecord(fRecord,dataBuffer+2,mssg);
+				processData(dataBuffer+2,length,2);
+			}
 			break;
 		case 3:
 			processData(dataBuffer+2,length,3);
