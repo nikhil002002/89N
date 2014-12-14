@@ -9,11 +9,13 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <stdlib.h>
 #include "ClientHeader.h"
 
 int SetupTCPClientSocket(const char *serverIP, const char *serverPort)
 {
 
+	  in_port_t servPort = atoi(serverPort);
 	  int clientSock = -1;
 	  // Create a reliable, stream socket using TCP
 	  clientSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -29,8 +31,8 @@ int SetupTCPClientSocket(const char *serverIP, const char *serverPort)
 	  if (rtnVal == 0)
 	    DieWithErrorMessage("inet_pton() failed", "invalid address string");
 	  else if (rtnVal < 0)
-	    DieWithErrorMessage("inet_pton() failed-",perror);
-	  serverAddr.sin_port = htons(serverPort);    // Server port
+	    DieWithErrorMessage("inet_pton() failed-","");
+	  serverAddr.sin_port = htons(servPort);    // Server port
 
 	  // Establish the connection to the DNS Dossier server
 	  if (connect(clientSock, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) < 0)
