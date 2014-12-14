@@ -4,13 +4,13 @@
 #include <ctype.h>
 #include "IpDomainDossierHeaders.h"
 
-struct database *addRecord(struct database *fRecord, char *newData, char *message)
+struct database *addRecord(struct database *fRecord, const char *newData, char *message)
 {
 	struct database *currentRecord, *toAddRecord;
-	char domName[20], ipAdd[16], totalData[36], webName[20], siteName[20];
+	char domName[20], ipAdd[16], webName[20], siteName[20];  //totalData[36],
 	int first, second, third, fourth, index = 0;
-	strcpy(totalData, newData);
-	sscanf(totalData, "%s %s", webName, ipAdd);
+	//strcpy(totalData, newData);
+	sscanf(newData, "%s %s", webName, ipAdd);
 	sscanf(ipAdd, "%d.%d.%d.%d", &first, &second, &third, &fourth);
 	if(first < 0 || first > 255 || second < 0 || second > 255 || third < 0 || third > 255 || fourth < 0 || fourth > 255)
 	{
@@ -53,7 +53,7 @@ struct database *addRecord(struct database *fRecord, char *newData, char *messag
 		strcpy(toAddRecord->ipAddrs[1], "\0");
 		toAddRecord->nextRecord = fRecord;
 		fRecord = toAddRecord;
-		strcpy(message, "The record to be added is added successfully.");
+		strcpy(message, "The record added successfully.");
 		return fRecord;
 	}
 	else
@@ -68,7 +68,7 @@ struct database *addRecord(struct database *fRecord, char *newData, char *messag
 			}
 			else if(index == 9)
 			{
-				strcpy(message, "The record to be added already existed, and the alternate IP address was not added to the record due to maximum ip addresses.");
+				strcpy(message, "The record already existed, and the alternate IP address was not added to the record due to maximum IP addresses.");
 				return fRecord;
 			}
 		index++;
@@ -78,7 +78,7 @@ struct database *addRecord(struct database *fRecord, char *newData, char *messag
 		{
 			strcpy(currentRecord->ipAddrs[index + 1], "\0");
 		}
-		strcpy(message, "The record to be added already existed, but the alternate IP address was added in the record.");
+		strcpy(message, "The record already existed, but alternate IP address was added.");
 		return fRecord;
 	}
 }

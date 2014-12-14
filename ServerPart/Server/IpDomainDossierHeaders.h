@@ -20,6 +20,7 @@ struct database
 	struct database *nextRecord;
 };
 
+# define SERVERSHUTDOWNCODE "2A670"
 // Function to Handle errors with custom Message
 void DieWithErrorMessage(const char *msg, const char *detail);
 // Handle error with sys msg
@@ -33,7 +34,14 @@ char **findIPfromDomainName(char *hostname);
 char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord);
 char **processData(const char *dataBuffer, const int dataLength,int command);
 struct database *readFile(char *fName, char *message);
-struct database *deleteRecord(struct database *fRecord, char *webName, char *message);
+struct database *deleteRecord(struct database *fRecord, const char *webName, char *message);
+struct database *addRecord(struct database *fRecord, const char *newData, char *message);
+struct database *mostReqRecord(struct database *fRecord, char *message);
+struct database *leastReqRecord(struct database *fRecord, char *message);
+char *writeFile(struct database *fRecord, char *fName);
+
+char *fileNamePtr;
+
 
 enum sizeConstants {
   MAXSTRINGLENGTH = 128,

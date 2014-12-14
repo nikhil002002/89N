@@ -4,11 +4,13 @@
 #include <ctype.h>
 #include "IpDomainDossierHeaders.h"
 
-struct database *deleteRecord(struct database *fRecord, char *webName, char *message)
+struct database *deleteRecord(struct database *fRecord, const char *domainName, char *message)
 {
 	struct database *currentRecord, *previousRecord;
-	char domName[20];
+	char domName[20],webName[20];
 	int index = 0;
+	strncpy(webName,domainName,sizeof(webName - 1));
+
 	while(webName[index] != '\0')
 	{
 		webName[index] = toupper(webName[index]);

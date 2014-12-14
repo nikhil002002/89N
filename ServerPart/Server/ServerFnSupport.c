@@ -39,7 +39,7 @@ void ProcessTCPClient(int clientSocket,struct database *fRecord) {
 char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord)
 {
 	//char *chDataBufferptr=dataBuffer;
-
+	char mssg[100];
 	int command=atoi(dataBuffer);
 	int length=dataLength-2;
 	switch (command)
@@ -73,39 +73,45 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 		}
 		case 2:	//Add Record
 			{
-				char *mssg;
 				fRecord = addRecord(fRecord,dataBuffer+2,mssg);
+				return mssg;
 				//processData(dataBuffer+2,length,2);
 			}
 			break;
 		case 3:	//Delete Record
-			char *mssg;
-			fRecord=deleteRecord(fRecord,dataBuffer+2,mssg);
-			//processData(dataBuffer+2,length,3);
+			{
+				fRecord=deleteRecord(fRecord,dataBuffer+2,mssg);
+				return mssg;
+				//processData(dataBuffer+2,length,3);
+			}
 			break;
 		case 4:		//Most Requested Records
-			char *mssg;
+		{
 			fRecord=mostReqRecord(fRecord,mssg);
+			return mssg;
 			break;
+		}
 		case 5:		//Least Requested Records
-			char *mssg;
+		{
 			fRecord=leastReqRecord(fRecord,mssg);
+			return mssg;
 			break;
-		case 6:
-			//TODO Call End Function
-			printf("End");
-			exit(0);
+		}
+		case 6:		//ShutDown Server
+		{
+			if(strcmp(SERVERSHUTDOWNCODE,dataBuffer+2)==0)
+			{
+				char *sysmssg= writeFile(fRecord,fileNamePtr);
+				exit(0);
+			}
+			return "Unauthorized";
 			break;
+		}
 		default:
+			return "Command not recognized";
 			break;
 	}
-	int bufferLen=dataLength-1;
-	const char *endlength;
-	for(;(*(dataBuffer+1))!= 32 && --bufferLen>=0;)
-	{
-		endlength=dataBuffer+1;
-	}
-
+	return "Command not processed";
 }
 
 char **processData(const char *dataBuffer, const int dataLength,int command)

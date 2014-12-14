@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 
   in_port_t serverPortNo = atoi(argv[1]); // First argument:  local port
 
-  char *fileNamePtr=argv[2];	//Second Argument: File Name
+  fileNamePtr=argv[2];	//Second Argument: File Name
 
   int timeGap= atoi(argv[3]); //Third Argument: TIME Gap
 
