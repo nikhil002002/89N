@@ -21,6 +21,14 @@ int main(int argc, char *argv[]) {
 
   int timeGap= atoi(argv[3]); //Third Argument: TIME Gap
 
+  char *mssg;
+  //Read DataBase
+  struct database *dbLstPtr;
+  if((dbLstPtr=readFile(fileNamePtr,mssg))==NULL)
+  {
+	  //report File not found Event;
+  }
+
 
   // Create Server Socket
   int servSock; // Socket descriptor for server

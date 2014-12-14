@@ -16,35 +16,43 @@
 #include "IpDomainDossierHeaders.h"
 
 
-char** domainIP(char *webName)
-//char *domainIP(struct database *fRecord, char *webName, char *message)
+//char** domainIP(char *webName)
+char **domainIP(struct database *fRecord, char *webName)
 {
-//	struct database *currentRecord;
-//	char domName[20], ipList[160];
-//	int index = 0;
-//	while(webName[index] != '\0')
-//	{
-//		webName[index] = toupper(webName[index]);
-//		index++;
-//	}
-//	currentRecord = fRecord;
-//	while(currentRecord != NULL)
-//	{
-//		index = 0;
-//		strcpy(domName, currentRecord->domainName);
-//		while(domName[index] != '\0')
-//		{
-//			domName[index] = toupper(domName[index]);
-//			index++;
-//		}
-//		if(strcmp(domName, webName) == 0)
-//		{
-//			break;
-//		}
-//		currentRecord = currentRecord->nextRecord;
-//	}
-//	if(currentRecord != NULL)
-//	{
+	char** ipList;
+
+	struct database *currentRecord;
+	char domName[20]; //ipList[160];
+	int index = 0;
+	while(webName[index] != '\0')
+	{
+		webName[index] = toupper(webName[index]);
+		index++;
+	}
+	currentRecord = fRecord;
+	while(currentRecord != NULL)
+	{
+		index = 0;
+		strcpy(domName, currentRecord->domainName);
+		while(domName[index] != '\0')
+		{
+			domName[index] = toupper(domName[index]);
+			index++;
+		}
+		if(strcmp(domName, webName) == 0)
+		{
+			break;
+		}
+		currentRecord = currentRecord->nextRecord;
+	}
+	if(currentRecord != NULL)
+	{
+		index = 0;
+		ipList=malloc(10*sizeof(char*));
+		while((currentRecord->ipAddrs[index][0] != '\0') && (index < 10))	//TODO : ask Index<10
+		{
+			ipList[index]=currentRecord->ipAddrs[index];
+		}
 //		index = 0;
 //		strcpy(ipList, currentRecord->ipAddrs[index]);
 //		index++;
@@ -54,16 +62,17 @@ char** domainIP(char *webName)
 //			strcat(ipList, currentRecord->ipAddrs[index]);
 //			index++;
 //		}
-//		currentRecord->numTimes++;
+		currentRecord->numTimes++;
 //		strcpy(message, "The ip for the domain is returned.");
 //		return &ipList[0];
-//	}
-//	else
-//	{
-		char** ipList=findIPfromDomainName(webName);
-
 		return ipList;
-//	}
+	}
+	else
+	{
+		ipList=findIPfromDomainName(webName);
+		//TODO Add if()
+		return ipList;
+	}
 }
 
 char **findIPfromDomainName(char *hostname)
