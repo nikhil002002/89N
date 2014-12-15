@@ -22,13 +22,16 @@ int main(int argc, char *argv[]) {
 
   if((command==1||command==3||command==6)&&argc!=5)
 	  DieWithErrorMessage("Insufficient Parameter(s)","<Server Address> <Port> <command> <arg>");
-  if((command==2 && argc<6))
+  if((command==2 && argc!=6))
 	  DieWithErrorMessage("Insufficient Parameter(s)","<Server Address> <Port> <command> <arg>");
 
   char *toSendBuffer=NULL;
   int lenArgOneAndTwo;
   if(command==4||command==5)
+  {
 	  toSendBuffer=argv[3];
+	  lenArgOneAndTwo=strlen(argv[3])+1;
+  }
   else
   {
 	  lenArgOneAndTwo= strlen(argv[3])+strlen(argv[4])+2;
@@ -40,21 +43,29 @@ int main(int argc, char *argv[]) {
 
 	  if(command==2)
 	  {
-		  int index;
-		  for(index=5;index<argc;index++)
+		  if(validateString(argv[5])==1)
 		  {
-			  if(validateString(argv[index])==1)
-			  {
-				  lenArgOneAndTwo+=(strlen(argv[index])+1);
-				  if((toSendBuffer=realloc(toSendBuffer,lenArgOneAndTwo))==NULL)
-						  DieWithErrorMessage("Insufficient Memory","");
-				  tst+=strlen(argv[index-1])+2;
-				  strcpy(tst,argv[index]);
-			  }
+			  lenArgOneAndTwo+=(strlen(argv[5])+1);
+			  if((toSendBuffer=realloc(toSendBuffer,lenArgOneAndTwo))==NULL)
+					  DieWithErrorMessage("Insufficient Memory","");
+			  tst+=strlen(argv[4])+1;
+			  strcpy(tst,argv[5]);
 		  }
+//		  int index;
+//		  for(index=5;index<argc;index++)
+//		  {
+//			  if(validateString(argv[index])==1)
+//			  {
+//				  lenArgOneAndTwo+=(strlen(argv[index])+1);
+//				  if((toSendBuffer=realloc(toSendBuffer,lenArgOneAndTwo))==NULL)
+//						  DieWithErrorMessage("Insufficient Memory","");
+//				  tst+=strlen(argv[index-1])+2;
+//				  strcpy(tst,argv[index]);
+//			  }
+//		  }
 	  }
 
-  }
+   }
 
 
   char *serverIP = argv[1];     // Server address/name
