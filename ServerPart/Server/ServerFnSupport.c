@@ -39,6 +39,15 @@ struct database *ProcessTCPClient(int clientSocket,struct database *fRecord) {
   return dbLstPtr;
 }
 
+void sendBuffer(int clientSocket,char *sendBuf, ssize_t bufLen)
+{
+	ssize_t numBytesSent = send(clientSocket, sendBuf,bufLen , 0);
+	if (numBytesSent < 0)
+	  DieWithErrorMessage("send() failed","");
+	else if (numBytesSent != bufLen)
+		DieWithErrorMessage("send()", "sent unexpected number of bytes");
+}
+
 char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord)
 {
 	//char *chDataBufferptr=dataBuffer;
@@ -85,6 +94,7 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 			if(strcmp(SERVERSHUTDOWNCODE,dataBuffer+2)==0)
 			{
 				char *sysmssg= writeFile(fRecord,fileNamePtr);
+				free(fRecord);
 				exit(0);
 			}
 			strcpy(mssg,"Unauthorized");

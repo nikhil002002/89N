@@ -72,7 +72,7 @@ struct database *domainIP(struct database *fRecord, char *webNamep, char *messag
 	}
 	else
 	{
-		ipList=findIPfromDomainName(webName);
+		ipList=findIPfromDomainName(webNamep);
 
 		webRecord = (struct database *)malloc(sizeof(struct database));
 		if(webRecord == NULL)
@@ -81,7 +81,7 @@ struct database *domainIP(struct database *fRecord, char *webNamep, char *messag
 			return NULL;
 		}
 		webRecord->numTimes = 1;
-		strcpy(webRecord->domainName, webName);
+		strcpy(webRecord->domainName, webNamep);
 		index = 0;
 		char** tempIpList=ipList;
 		while((*(tempIpList) != NULL) && (index < 10))

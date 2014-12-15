@@ -6,11 +6,16 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "IpDomainDossierHeaders.h"
+#include <time.h>
 
+static char lastReqIp[20]={0};
+static time_t instance1, instance2;
 static const int MAXPENDINGREQ = 5; // Maximum outstanding connection requests allowed on server
 //static struct database *dbLstPtr;
 //Accepts Port Number, File Name and Accepted Time gap.
 int main(int argc, char *argv[]) {
+
+	instance1=0;
 
   if (argc != 4) // Test for correct number of arguments else Exit
 	  DieWithErrorMessage("Parameter(s)", "<Server Port> <File Name> <Time Gap>");
@@ -19,7 +24,7 @@ int main(int argc, char *argv[]) {
 
   fileNamePtr=argv[2];	//Second Argument: File Name
 
-  int timeGap= atoi(argv[3]); //Third Argument: TIME Gap
+  double timeGap= (double)atoi(argv[3]); //Third Argument: TIME Gap
 
   char *mssg =malloc(100) ;								//TODO
   //Read DataBase
@@ -63,21 +68,36 @@ int main(int argc, char *argv[]) {
     if (clntSock < 0)
       DieWithErrorMessage("Server accept() operation failed","");
 
+    //Record Time
+    time(&instance2);
+    double seconds = difftime(instance2, instance1);
 
     char clntName[INET_ADDRSTRLEN]; // String to contain client address in Dotted Decimal
     if (inet_ntop(PF_INET, &clientAddr.sin_addr.s_addr, clntName, sizeof(clntName)) != NULL)
+    {
       printf("Receiving from Client IP %s/ Port: %d\n", clntName, ntohs(clientAddr.sin_port));
+    }
     else
     {
       perror("Unable to Retrieve Client address");
       //TODO Continue loop to listen again
       continue;
     }
-//
-//    void *dataBuffer="1\0www.yahoo.com";
-//    printf("%s", (char*)dataBuffer);
-//    processCommand(dataBuffer,15);
-    printf("%p\n", dbLstPtr);
+
+    if((strcmp(clntName,lastReqIp)==0) && seconds<timeGap)
+    {
+    	char msg[20];
+    	sprintf(msg,"Please wait for %.1f seconds",timeGap);
+    	ssize_t msglen=strlen(msg);
+    	sendBuffer(clntSock,msg,msglen);
+    	continue;
+    }
+    else
+    {
+    	strcpy(lastReqIp,clntName);
+    	instance1=instance2;
+    }
+    //printf("%p\n", dbLstPtr);
     dbLstPtr= ProcessTCPClient(clntSock,dbLstPtr);
 
   }
