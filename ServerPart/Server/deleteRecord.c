@@ -9,7 +9,7 @@ struct database *deleteRecord(struct database *fRecord, const char *domainName, 
 	struct database *currentRecord, *previousRecord;
 	char domName[20],webName[20];
 	int index = 0;
-	strncpy(webName,domainName,sizeof(webName - 1));
+	strncpy(webName,domainName,sizeof(webName)-1);
 
 	while(webName[index] != '\0')
 	{

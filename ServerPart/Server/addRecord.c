@@ -10,7 +10,12 @@ struct database *addRecord(struct database *fRecord, const char *newData, char *
 	char domName[20], ipAdd[16], webName[20], siteName[20];  //totalData[36],
 	int first, second, third, fourth, index = 0;
 	//strcpy(totalData, newData);
-	sscanf(newData, "%s %s", webName, ipAdd);
+
+	strcpy(webName,newData);
+	char const *ipAddp=newData+strlen(newData)+1;			//TODO
+
+	strcpy(ipAdd, ipAddp);
+	//sscanf(newData, "%s%s", webName, ipAdd);
 	sscanf(ipAdd, "%d.%d.%d.%d", &first, &second, &third, &fourth);
 	if(first < 0 || first > 255 || second < 0 || second > 255 || third < 0 || third > 255 || fourth < 0 || fourth > 255)
 	{

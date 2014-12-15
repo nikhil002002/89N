@@ -29,7 +29,7 @@ void DieWithErrorMessage(const char *msg, const char *detail);
 
 //char** domainIP(char *domainName);
 char **domainIP(struct database *fRecord, char *webName);
-void ProcessTCPClient(int clientSocket,struct database *fRecord);
+struct database *ProcessTCPClient(int clientSocket,struct database *fRecord);
 char **findIPfromDomainName(char *hostname);
 char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord);
 char **processData(const char *dataBuffer, const int dataLength,int command);
@@ -39,9 +39,11 @@ struct database *addRecord(struct database *fRecord, const char *newData, char *
 struct database *mostReqRecord(struct database *fRecord, char *message);
 struct database *leastReqRecord(struct database *fRecord, char *message);
 char *writeFile(struct database *fRecord, char *fName);
+char *printFunction(struct database *first, char *recrd);
+
 
 char *fileNamePtr;
-
+static struct database *dbLstPtr;
 
 enum sizeConstants {
   MAXSTRINGLENGTH = 128,

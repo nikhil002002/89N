@@ -8,7 +8,7 @@
 #include "IpDomainDossierHeaders.h"
 
 static const int MAXPENDINGREQ = 5; // Maximum outstanding connection requests allowed on server
-
+//static struct database *dbLstPtr;
 //Accepts Port Number, File Name and Accepted Time gap.
 int main(int argc, char *argv[]) {
 
@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
 
   int timeGap= atoi(argv[3]); //Third Argument: TIME Gap
 
-  char *mssg;
+  char *mssg =malloc(100) ;								//TODO
   //Read DataBase
-  struct database *dbLstPtr;
+
   if((dbLstPtr=readFile(fileNamePtr,mssg))==NULL)
   {
 	  //report File not found Event;
@@ -77,8 +77,8 @@ int main(int argc, char *argv[]) {
 //    void *dataBuffer="1\0www.yahoo.com";
 //    printf("%s", (char*)dataBuffer);
 //    processCommand(dataBuffer,15);
-
-    ProcessTCPClient(clntSock,dbLstPtr);
+    printf("%p\n", dbLstPtr);
+    dbLstPtr= ProcessTCPClient(clntSock,dbLstPtr);
 
   }
 

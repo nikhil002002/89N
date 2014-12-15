@@ -14,8 +14,10 @@
 #include <stdio.h>
 #include "IpDomainDossierHeaders.h"
 
+char *mssg;
 
-void ProcessTCPClient(int clientSocket,struct database *fRecord) {
+
+struct database *ProcessTCPClient(int clientSocket,struct database *fRecord) {
   char buffer[BUFSIZE]; // Buffer for storing incoming data
 
   // Receive transmitted message from client
@@ -34,12 +36,13 @@ void ProcessTCPClient(int clientSocket,struct database *fRecord) {
 
   free(toSendBuffer);
   close(clientSocket); // Close client socket
+  return dbLstPtr;
 }
 
 char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord)
 {
 	//char *chDataBufferptr=dataBuffer;
-	char mssg[100];
+	mssg= malloc(150);
 	int command=atoi(dataBuffer);
 	int length=dataLength-2;
 	switch (command)
@@ -73,27 +76,27 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 		}
 		case 2:	//Add Record
 			{
-				fRecord = addRecord(fRecord,dataBuffer+2,mssg);
+				dbLstPtr = addRecord(fRecord,dataBuffer+2,mssg);
 				return mssg;
 				//processData(dataBuffer+2,length,2);
 			}
 			break;
 		case 3:	//Delete Record
 			{
-				fRecord=deleteRecord(fRecord,dataBuffer+2,mssg);
+				dbLstPtr=deleteRecord(fRecord,dataBuffer+2,mssg);
 				return mssg;
 				//processData(dataBuffer+2,length,3);
 			}
 			break;
 		case 4:		//Most Requested Records
 		{
-			fRecord=mostReqRecord(fRecord,mssg);
+			dbLstPtr=mostReqRecord(fRecord,mssg);
 			return mssg;
 			break;
 		}
 		case 5:		//Least Requested Records
 		{
-			fRecord=leastReqRecord(fRecord,mssg);
+			dbLstPtr=leastReqRecord(fRecord,mssg);
 			return mssg;
 			break;
 		}
@@ -114,8 +117,9 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 	return "Command not processed";
 }
 
-char **processData(const char *dataBuffer, const int dataLength,int command)
+char **processData(const char *dataBufferp, const int dataLength,int command)
 {
+	const char *dataBuffer=dataBufferp;
 	const char* endOfDataBuf=dataBuffer+dataLength;
 	char** maPtrData;
 	if(command==1 || command==3)
@@ -137,7 +141,7 @@ char **processData(const char *dataBuffer, const int dataLength,int command)
 			counter++;
 			if((maPtrData= realloc(maPtrData,1*sizeof(char*)))==NULL)
 				DieWithErrorMessage("Memory allocation Failed for additional parameter","");
-			maPtrData[counter]=(char *)*dataBuffer;
+			maPtrData[counter]=(char *)dataBuffer;
 			dataBuffer++;
 		}
 	}

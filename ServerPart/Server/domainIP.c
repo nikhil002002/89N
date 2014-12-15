@@ -17,12 +17,13 @@
 
 
 //char** domainIP(char *webName)
-char **domainIP(struct database *fRecord, char *webName)
+char **domainIP(struct database *fRecord, char *webNamep)
 {
 	char** ipList;
 
 	struct database *currentRecord;
-	char domName[20]; //ipList[160];
+	char domName[20],webName[20]; //ipList[160];
+	strncpy(webName,webNamep,sizeof(webName));
 	int index = 0;
 	while(webName[index] != '\0')
 	{
@@ -52,6 +53,7 @@ char **domainIP(struct database *fRecord, char *webName)
 		while((currentRecord->ipAddrs[index][0] != '\0') && (index < 10))	//TODO : ask Index<10
 		{
 			ipList[index]=currentRecord->ipAddrs[index];
+			index++;
 		}
 //		index = 0;
 //		strcpy(ipList, currentRecord->ipAddrs[index]);
