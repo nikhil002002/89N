@@ -50,30 +50,10 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 		case 1:
 		{
 			char **param=processData(dataBuffer+2,length,1);
-			char** ipList= domainIP(fRecord,param[0]);
-			int ipcount=0;
-			char** tempIpList;
-			for(tempIpList=ipList;*(tempIpList)!=NULL;tempIpList++)
-			{
-				ipcount++;
-			}
-
-			int lenBuff=strlen(param[0])+(ipcount*16)+50;
-			char *toSendBuffer=malloc(lenBuff);
-
-			strcat(toSendBuffer,"Requested Domain :");
-			strcat(toSendBuffer,param[0]);
-			strcat(toSendBuffer," IP Add: ");
-
-			for(tempIpList=ipList;*(tempIpList)!=NULL;tempIpList++)
-			{
-				strcat(toSendBuffer,ipList[--ipcount]);
-				strcat(toSendBuffer," ");
-			}
-			free(ipList);
-			return toSendBuffer;
-			break;
+			dbLstPtr= domainIP(fRecord,param[0],mssg);
+			return mssg;
 		}
+			break;
 		case 2:	//Add Record
 			{
 				dbLstPtr = addRecord(fRecord,dataBuffer+2,mssg);
@@ -107,14 +87,19 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 				char *sysmssg= writeFile(fRecord,fileNamePtr);
 				exit(0);
 			}
-			return "Unauthorized";
+			strcpy(mssg,"Unauthorized");
+			return mssg;
 			break;
 		}
 		default:
-			return "Command not recognized";
+		{
+			strcpy(mssg,"Command not recognized");
+			return mssg;
+		}
 			break;
 	}
-	return "Command not processed";
+	strcpy(mssg,"Command not processed");
+	return mssg;
 }
 
 char **processData(const char *dataBufferp, const int dataLength,int command)

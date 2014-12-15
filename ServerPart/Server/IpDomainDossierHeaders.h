@@ -28,7 +28,7 @@ void DieWithErrorMessage(const char *msg, const char *detail);
 
 
 //char** domainIP(char *domainName);
-char **domainIP(struct database *fRecord, char *webName);
+struct database *domainIP(struct database *fRecord, char *webNamep, char *message);
 struct database *ProcessTCPClient(int clientSocket,struct database *fRecord);
 char **findIPfromDomainName(char *hostname);
 char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord);

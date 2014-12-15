@@ -12,7 +12,7 @@ struct database *addRecord(struct database *fRecord, const char *newData, char *
 	//strcpy(totalData, newData);
 
 	strcpy(webName,newData);
-	char const *ipAddp=newData+strlen(newData)+1;			//TODO
+	char const *ipAddp=newData+strlen(newData)+1;
 
 	strcpy(ipAdd, ipAddp);
 	//sscanf(newData, "%s%s", webName, ipAdd);

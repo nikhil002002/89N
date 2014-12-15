@@ -17,11 +17,12 @@
 
 
 //char** domainIP(char *webName)
-char **domainIP(struct database *fRecord, char *webNamep)
+//char **domainIP(struct database *fRecord, char *webNamep)
+struct database *domainIP(struct database *fRecord, char *webNamep, char *message)
 {
 	char** ipList;
 
-	struct database *currentRecord;
+	struct database *currentRecord, *webRecord;
 	char domName[20],webName[20]; //ipList[160];
 	strncpy(webName,webNamep,sizeof(webName));
 	int index = 0;
@@ -49,7 +50,7 @@ char **domainIP(struct database *fRecord, char *webNamep)
 	if(currentRecord != NULL)
 	{
 		index = 0;
-		ipList=malloc(10*sizeof(char*));
+		ipList=calloc(10,sizeof(char*));
 		while((currentRecord->ipAddrs[index][0] != '\0') && (index < 10))	//TODO : ask Index<10
 		{
 			ipList[index]=currentRecord->ipAddrs[index];
@@ -67,14 +68,61 @@ char **domainIP(struct database *fRecord, char *webNamep)
 		currentRecord->numTimes++;
 //		strcpy(message, "The ip for the domain is returned.");
 //		return &ipList[0];
-		return ipList;
+//		return ipList;
 	}
 	else
 	{
 		ipList=findIPfromDomainName(webName);
-		//TODO Add if()
-		return ipList;
+
+		webRecord = (struct database *)malloc(sizeof(struct database));
+		if(webRecord == NULL)
+		{
+			strcpy(message, "Database is full. The record to be added after searching IP from the web could not be added.");
+			return NULL;
+		}
+		webRecord->numTimes = 1;
+		strcpy(webRecord->domainName, webName);
+		index = 0;
+		char** tempIpList=ipList;
+		while((*(tempIpList) != NULL) && (index < 10))
+		{
+			strcpy(webRecord->ipAddrs[index], ipList[index]);
+			index++;
+			tempIpList++;
+		}
+		if(index < 9)
+		{
+			strcpy(webRecord->ipAddrs[index], "\0");
+		}
+		webRecord->nextRecord = fRecord;
+		fRecord = webRecord;
+
+		//return ipList;
 	}
+
+	int ipcount=0;
+	char** tempIpList;
+	for(tempIpList=ipList;*(tempIpList)!=NULL;tempIpList++)
+	{
+		ipcount++;
+	}
+
+	int lenBuff=strlen(webNamep)+(ipcount*16)+50;
+	char *toSendBuffer=calloc(lenBuff,sizeof(char));
+
+	strcat(toSendBuffer,"Requested Domain :");
+	strcat(toSendBuffer,webNamep);
+	strcat(toSendBuffer," IP Add: ");
+
+	for(tempIpList=ipList;*(tempIpList)!=NULL;tempIpList++)
+	{
+		strcat(toSendBuffer,ipList[--ipcount]);
+		strcat(toSendBuffer," ");
+	}
+	free(ipList);
+	strcpy(message, toSendBuffer);
+
+	return fRecord;
 }
 
 char **findIPfromDomainName(char *hostname)
