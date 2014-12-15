@@ -12,12 +12,11 @@ static char lastReqIp[20]={0};
 static time_t instance1, instance2;
 static const int MAXPENDINGREQ = 5; // Maximum outstanding connection requests allowed on server
 
-
 //Accepts Port Number, File Name and Accepted Time gap.
 int main(int argc, char *argv[]) {
 
-	//Initialize time variable for first run
-	instance1=0;
+  //Initialize time variable for first run
+  instance1=0;
 
   if (argc != 4) // Test for correct number of arguments else Exit
 	  DieWithErrorMessage("Parameter(s)", "<Server Port> <File Name> <Time Gap>");
@@ -65,14 +64,15 @@ int main(int argc, char *argv[]) {
   if (listen(servSock, MAXPENDINGREQ) < 0)
   {
 	  if(dbLstPtr!=NULL)
-	 			free(dbLstPtr);
-	 DieWithErrorMessage("Server listen() operation failed",NULL);
+	 	 free(dbLstPtr);
+	  DieWithErrorMessage("Server listen() operation failed",NULL);
   }
   for (;;) {
 
 	eventLogger("Server now Listening to Socket");
 	// Start Server
     struct sockaddr_in clientAddr; // Client address
+
     // Set length of client address structure
     socklen_t clntAddrLen = sizeof(clientAddr);
 
@@ -86,7 +86,6 @@ int main(int argc, char *argv[]) {
       DieWithErrorMessage("Server accept() operation failed",NULL);
     }
 
-    eventLogger("test");
     //Record Time
     time(&instance2);
     double seconds = difftime(instance2, instance1);
@@ -98,9 +97,8 @@ int main(int argc, char *argv[]) {
       sprintf(msg,"Receiving from Client IP %s/ Port: %d\n", clntName, ntohs(clientAddr.sin_port));
 
       printf("%s", msg);
-      eventLogger("test");
 
-      //free(msg);
+      free(msg);
     }
     else
     {
@@ -127,6 +125,7 @@ int main(int argc, char *argv[]) {
     char *eventmssg=malloc(150);
 	sprintf(eventmssg,"**********Session started for Client IP: %s **********",clntName);
 	errorLogger(eventmssg);
+	eventLogger(eventmssg);
 	free(eventmssg);
     dbLstPtr= ProcessTCPClient(clntSock,dbLstPtr);
 

@@ -45,7 +45,7 @@ struct database *mostReqRecord(struct database *fRecord, char *message)
 				strcpy(mostRequest->ipAddrs[index], currentRecord->ipAddrs[index]);
 				index++;
 			}
-			if(index != 10)
+			if(index < 10)
 			{
 				strcpy(mostRequest->ipAddrs[index], "\0");
 			}
@@ -54,7 +54,7 @@ struct database *mostReqRecord(struct database *fRecord, char *message)
 		}
 		currentRecord = currentRecord->nextRecord;
 	}
-	char recrd[200];
+	char recrd[1000];
 	printFunction(fMostRequest,recrd);
 
 	strcpy(message, recrd);
@@ -63,7 +63,7 @@ struct database *mostReqRecord(struct database *fRecord, char *message)
 
 void printFunction(struct database *first, char *recrd)
 {
-	char data[200]={0}, times[10];
+	char data[1000]={0}, times[10];
 	int index;
 
 	while(first != NULL)

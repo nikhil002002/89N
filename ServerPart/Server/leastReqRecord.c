@@ -45,7 +45,7 @@ struct database *leastReqRecord(struct database *fRecord, char *message)
 				strcpy(leastRequest->ipAddrs[index], currentRecord->ipAddrs[index]);
 				index++;
 			}
-			if(index != 10)
+			if(index < 10)
 			{
 				strcpy(leastRequest->ipAddrs[index], "\0");
 			}
@@ -55,7 +55,7 @@ struct database *leastReqRecord(struct database *fRecord, char *message)
 		currentRecord = currentRecord->nextRecord;
 	}
 
-	char recrd[200];
+	char recrd[1000];
 	printFunction(leastRequest,recrd);
 
 	strcpy(message, recrd);

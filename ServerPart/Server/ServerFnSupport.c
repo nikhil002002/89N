@@ -113,14 +113,12 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 			if(strcmp(SERVERSHUTDOWNCODE,dataBuffer+2)==0)
 			{
 				eventLogger("Server Shut Down Request from Client");
-				char *sysmssg=malloc(50);
+				char *sysmssg;//=malloc(50);
 				sysmssg= writeFile(fRecord,fileNamePtr);
 				eventLogger(sysmssg);
-				free(sysmssg);
-				free(fRecord);
 				exit(0);
 			}
-			strcpy(mssg,"Unauthorized");
+			strcpy(mssg,"Unauthorized Command");
 			return mssg;
 			break;
 		}
@@ -170,10 +168,13 @@ void DieWithErrorMessage(const char *msg, const char *detail) {
 
   fputs(msg, stderr);
   fputs(": ", stderr);
-  fputs(detail, stderr);
+  if(detail!=NULL)
+   {
+	  fputs(detail, stderr);
+   }
   fputc('\n', stderr);
-  errorLogger(mssg);
-  eventLogger(mssg);
+  errorLogger(msg);
+  eventLogger(msg);
   if(detail!=NULL)
   {
 	  errorLogger(detail);
