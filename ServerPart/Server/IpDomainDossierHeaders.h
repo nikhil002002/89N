@@ -43,7 +43,7 @@ void printFunction(struct database *first, char *recrd);
 
 
 char *fileNamePtr;
-static struct database *dbLstPtr;
+struct database *dbLstPtr;
 
 enum sizeConstants {
   MAXSTRINGLENGTH = 128,
