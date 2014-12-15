@@ -10,7 +10,8 @@ struct database *mostReqRecord(struct database *fRecord, char *message)
 	currentRecord = fRecord;
 	if(currentRecord == NULL)
 	{
-		strcpy(message, "The database is empty.");
+		strcpy(message, "No Records to find Most Requested Records.");
+		eventLogger(message);
 		return currentRecord;
 	}
 	numReq = currentRecord->numTimes;
@@ -32,7 +33,8 @@ struct database *mostReqRecord(struct database *fRecord, char *message)
 			mostRequest = (struct database *)malloc(sizeof(struct database));
 			if(mostRequest == NULL)
 			{
-				strcpy(message, "No memory left to store extracted record.");
+				strcpy(message, "mostReqRecords()->No memory left to store extracted record.");
+				errorLogger(message);
 				return NULL;
 			}
 			strcpy(mostRequest->domainName, currentRecord->domainName);

@@ -3,12 +3,12 @@
 #include <string.h>
 #include <time.h>
 
-void errorLogger(char *data)
+void errorLogger(const char *data)
 {
-	char dateTime[17];
+	static char dateTime[100];
 	int length = strlen(data) + strlen(dateTime);
 	struct tm *currTime;
-	time_t now;
+	time_t now1;
 	FILE *errorFile;
 	char *errorMessage = (char *)malloc(length*sizeof(char));
 	if(errorMessage == NULL)
@@ -22,12 +22,13 @@ void errorLogger(char *data)
 		fprintf(stdout, "The ErrorLog log file did not open.");
 		return;
 	}
-	now = time(0);
-	currTime = localtime(&now);
+	now1 = time(0);
+	currTime = localtime(&now1);
 	strftime (dateTime, sizeof(dateTime), "%Y/%m/%d %H:%M", currTime);
 	strcpy(errorMessage, dateTime);
 	strcat(errorMessage, " ");
 	strcat(errorMessage, data);
 	fprintf(errorFile, "%s\n", errorMessage);
+
 	fclose(errorFile);
 }

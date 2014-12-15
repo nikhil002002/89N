@@ -41,8 +41,8 @@ struct database *leastReqRecord(struct database *fRecord, char *message);
 char *writeFile(struct database *fRecord, char *fName);
 void printFunction(struct database *first, char *recrd);
 void sendBuffer(int clientSocket,char *sendBuf, ssize_t bufLen);
-void errorLogger(char *data);
-void eventLogger(char *data);
+int errorLogger(const char *data);
+int eventLogger(const char *data);
 
 char *fileNamePtr;
 struct database *dbLstPtr;

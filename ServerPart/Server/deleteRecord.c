@@ -35,6 +35,12 @@ struct database *deleteRecord(struct database *fRecord, const char *domainName, 
 	if(currentRecord == NULL)
 	{
 		strcpy(message, "The record to be deleted does not exist.");
+
+		char *eventmssg=malloc(150);
+		sprintf(eventmssg,"Record Does not exist for deletion, domain: %s ",domainName);
+		eventLogger(eventmssg);
+		free(eventmssg);
+
 		return NULL;
 	}
 	else if(previousRecord == NULL)
@@ -43,6 +49,12 @@ struct database *deleteRecord(struct database *fRecord, const char *domainName, 
 		fRecord = previousRecord;
 		free(currentRecord);
 		strcpy(message, "The record to be deleted is deleted successfully.");
+
+		char *eventmssg=malloc(150);
+		sprintf(eventmssg,"Record deleted, domain: %s ",domainName);
+		eventLogger(eventmssg);
+		free(eventmssg);
+
 		return fRecord;
 	}
 	else

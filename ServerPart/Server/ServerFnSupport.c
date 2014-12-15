@@ -15,26 +15,46 @@
 #include "IpDomainDossierHeaders.h"
 
 char *mssg;
-
+//char clientIpl[16]={0};
 
 struct database *ProcessTCPClient(int clientSocket,struct database *fRecord) {
-  char buffer[BUFSIZE]; // Buffer for storing incoming data
 
+  //strcpy(clientIpl,clientIP);
+  dbLstPtr=fRecord;
+  char buffer[BUFSIZE]; // Buffer for storing incoming data
+  char *toSendBuffer;
   // Receive transmitted message from client
   ssize_t numBytesRcvd = recv(clientSocket, buffer, BUFSIZE, 0);
   if (numBytesRcvd < 0)
-    DieWithErrorMessage("Server Receive failed","");
-
-  char *toSendBuffer= processCommand(buffer,numBytesRcvd,fRecord);
+  {
+	toSendBuffer=malloc(20);
+    toSendBuffer="Server Receive failed..Try again";
+    errorLogger("Server Receive failed");
+  }
+  else
+  {
+	  toSendBuffer= processCommand(buffer,numBytesRcvd,fRecord);
+  }
   ssize_t sendBufferLength=strlen(toSendBuffer)+1;
 
     ssize_t numBytesSent = send(clientSocket, toSendBuffer,sendBufferLength , 0);
     if (numBytesSent < 0)
-      DieWithErrorMessage("send() failed","");
-    else if (numBytesSent != sendBufferLength)
-    	DieWithErrorMessage("send()", "sent unexpected number of bytes");
-
-  free(toSendBuffer);
+    {
+      if(dbLstPtr!=NULL)
+		free(dbLstPtr);
+      if(toSendBuffer!=NULL)
+      		free(toSendBuffer);
+      DieWithErrorMessage("send() failed",NULL);
+    }
+     else if (numBytesSent != sendBufferLength)
+     {
+         if(dbLstPtr!=NULL)
+   		free(dbLstPtr);
+         if(toSendBuffer!=NULL)
+         		free(toSendBuffer);
+    	DieWithErrorMessage("send() failed", "sent unexpected number of bytes");
+     }
+  free(toSendBuffer);	//frees allocated mssg ptr in sendBuffer()
   close(clientSocket); // Close client socket
   return dbLstPtr;
 }
@@ -43,14 +63,15 @@ void sendBuffer(int clientSocket,char *sendBuf, ssize_t bufLen)
 {
 	ssize_t numBytesSent = send(clientSocket, sendBuf,bufLen , 0);
 	if (numBytesSent < 0)
-	  DieWithErrorMessage("send() failed","");
+	  DieWithErrorMessage("send() failed",NULL);
 	else if (numBytesSent != bufLen)
 		DieWithErrorMessage("send()", "sent unexpected number of bytes");
+	close(clientSocket);
 }
 
 char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord)
 {
-	//char *chDataBufferptr=dataBuffer;
+
 	mssg= malloc(150);
 	int command=atoi(dataBuffer);
 	int length=dataLength-2;
@@ -67,14 +88,12 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 			{
 				dbLstPtr = addRecord(fRecord,dataBuffer+2,mssg);
 				return mssg;
-				//processData(dataBuffer+2,length,2);
 			}
 			break;
 		case 3:	//Delete Record
 			{
 				dbLstPtr=deleteRecord(fRecord,dataBuffer+2,mssg);
 				return mssg;
-				//processData(dataBuffer+2,length,3);
 			}
 			break;
 		case 4:		//Most Requested Records
@@ -93,7 +112,11 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 		{
 			if(strcmp(SERVERSHUTDOWNCODE,dataBuffer+2)==0)
 			{
-				char *sysmssg= writeFile(fRecord,fileNamePtr);
+				eventLogger("Server Shut Down Request from Client");
+				char *sysmssg=malloc(50);
+				sysmssg= writeFile(fRecord,fileNamePtr);
+				eventLogger(sysmssg);
+				free(sysmssg);
 				free(fRecord);
 				exit(0);
 			}
@@ -104,6 +127,7 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 		default:
 		{
 			strcpy(mssg,"Command not recognized");
+			eventLogger("Unauthorized Shut Down Request");
 			return mssg;
 		}
 			break;
@@ -143,11 +167,18 @@ char **processData(const char *dataBufferp, const int dataLength,int command)
 	return maPtrData;
 }
 void DieWithErrorMessage(const char *msg, const char *detail) {
-  perror(msg);
+
   fputs(msg, stderr);
   fputs(": ", stderr);
   fputs(detail, stderr);
   fputc('\n', stderr);
+  errorLogger(mssg);
+  eventLogger(mssg);
+  if(detail!=NULL)
+  {
+	  errorLogger(detail);
+	  eventLogger(detail);
+  }
   exit(1);
 }
 

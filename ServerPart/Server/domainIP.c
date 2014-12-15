@@ -20,6 +20,7 @@
 //char **domainIP(struct database *fRecord, char *webNamep)
 struct database *domainIP(struct database *fRecord, char *webNamep, char *message)
 {
+	dbLstPtr=fRecord;
 	char** ipList;
 
 	struct database *currentRecord, *webRecord;
@@ -69,6 +70,10 @@ struct database *domainIP(struct database *fRecord, char *webNamep, char *messag
 //		strcpy(message, "The ip for the domain is returned.");
 //		return &ipList[0];
 //		return ipList;
+		char *eventmssg=malloc(100);
+		sprintf(eventmssg,"IP for domain %s requested",webNamep);
+		eventLogger(eventmssg);
+		free(eventmssg);
 	}
 	else
 	{
@@ -78,6 +83,7 @@ struct database *domainIP(struct database *fRecord, char *webNamep, char *messag
 		if(webRecord == NULL)
 		{
 			strcpy(message, "Database is full. The record to be added after searching IP from the web could not be added.");
+			eventLogger(message);
 			return NULL;
 		}
 		webRecord->numTimes = 1;
@@ -97,6 +103,10 @@ struct database *domainIP(struct database *fRecord, char *webNamep, char *messag
 		webRecord->nextRecord = fRecord;
 		fRecord = webRecord;
 
+		char *eventmssg=malloc(100);
+		sprintf(eventmssg,"IP for domain %s added.",webNamep);
+		eventLogger(eventmssg);
+		free(eventmssg);
 		//return ipList;
 	}
 
@@ -119,9 +129,15 @@ struct database *domainIP(struct database *fRecord, char *webNamep, char *messag
 		strcat(toSendBuffer,ipList[--ipcount]);
 		strcat(toSendBuffer," ");
 	}
+
+
 	free(ipList);
 	strcpy(message, toSendBuffer);
 
+	char *eventmssg=malloc(150);
+	sprintf(eventmssg,"Record added/requested: %s ",message);
+	eventLogger(eventmssg);
+	free(eventmssg);
 	return fRecord;
 }
 
@@ -164,10 +180,8 @@ char **findIPfromDomainName(char *hostname)
 	struct hostent *lh = gethostbyname(hostname);
 
 	char clntName[INET_ADDRSTRLEN];
-		  char** maIPList=NULL;
-	//	  if((maIPList=malloc(1*sizeof(char*)))==NULL)
-	//	  	DieWithErrorMessage("Memory allocation Failed for 1st IP","");
-		  int index=2;
+	char** maIPList=NULL;
+	int index=2;
 
 	addr_list = (struct in_addr **)lh->h_addr_list;
 	char **test=lh->h_addr_list;
@@ -178,13 +192,22 @@ char **findIPfromDomainName(char *hostname)
 	    	  if (inet_ntop(PF_INET, test[i], clntName, sizeof(clntName)) != NULL)
 			  {
 				  if((maIPList=realloc(maIPList,index*sizeof(char*)))==NULL)
-					DieWithErrorMessage("Memory allocation Failed for IPs","");
-
+				  {
+				    if(dbLstPtr!=NULL)
+						free(dbLstPtr);
+					free(maIPList);
+					DieWithErrorMessage("Memory allocation Failed for IPs",NULL);
+				  }
 				  int len;
 
 				  len = strlen(clntName);
 				  if((maIPList[index-2] = (char *)malloc(len + 1))==NULL)
-				  	 DieWithErrorMessage("Memory allocation Failed for IPs","");
+				  {
+				    if(dbLstPtr!=NULL)
+						free(dbLstPtr);
+					free(maIPList);
+					DieWithErrorMessage("Memory allocation Failed for IPs",NULL);
+				  }
 				  strcpy(maIPList[index-2], clntName);
 
 				  maIPList[index-1]= NULL;

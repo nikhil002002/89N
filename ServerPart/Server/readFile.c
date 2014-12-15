@@ -21,7 +21,8 @@ struct database *readFile(char *fName, char *message)
 		newRecord = (struct database *)malloc(sizeof(struct database));
 		if(newRecord == NULL)
 		{
-			strcpy(message, "No memory left. File could not be read properly.");
+			strcpy(message, "readFile()->No memory left. File could not be read properly.");
+			errorLogger(message);
 			return NULL;
 		}
 		sscanf(line, "%s %d %[0-9. ]", newRecord->domainName, &newRecord->numTimes, ipList);
