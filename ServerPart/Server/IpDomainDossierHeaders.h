@@ -39,7 +39,7 @@ struct database *addRecord(struct database *fRecord, const char *newData, char *
 struct database *mostReqRecord(struct database *fRecord, char *message);
 struct database *leastReqRecord(struct database *fRecord, char *message);
 char *writeFile(struct database *fRecord, char *fName);
-char *printFunction(struct database *first, char *recrd);
+void printFunction(struct database *first, char *recrd);
 
 
 char *fileNamePtr;

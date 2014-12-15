@@ -90,13 +90,13 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 			break;
 		case 4:		//Most Requested Records
 		{
-			dbLstPtr=mostReqRecord(fRecord,mssg);
+			mostReqRecord(fRecord,mssg);
 			return mssg;
 			break;
 		}
 		case 5:		//Least Requested Records
 		{
-			dbLstPtr=leastReqRecord(fRecord,mssg);
+			leastReqRecord(fRecord,mssg);
 			return mssg;
 			break;
 		}

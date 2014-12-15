@@ -52,6 +52,34 @@ struct database *leastReqRecord(struct database *fRecord, char *message)
 		}
 		currentRecord = currentRecord->nextRecord;
 	}
-	strcpy(message, "The least requested record(s) are returned.");
+
+	char recrd[200];
+	printFunction(leastRequest,recrd);
+
+	strcpy(message, recrd);
 	return fLeastRequest;
 }
+//
+//void printFunction(struct database *first, char *recrd)
+//{
+//	char data[200]={0}, times[10];
+//	int index;
+//
+//	while(first != NULL)
+//	{
+//		index = 0;
+//		strcat(data, first->domainName);
+//		strcat(data, " ");
+//		sprintf(times, "%d", first->numTimes);
+//		strcat(data, times);
+//		while((first->ipAddrs[index][0] != '\0') && (index < 10))
+//		{
+//			strcat(data, " ");
+//			strcat(data, first->ipAddrs[index]);
+//			index++;
+//		}
+//		strcat(data, "\n");
+//		first = first->nextRecord;
+//	}
+//	strcpy(recrd,data);
+//}

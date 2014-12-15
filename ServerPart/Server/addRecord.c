@@ -79,7 +79,7 @@ struct database *addRecord(struct database *fRecord, const char *newData, char *
 		index++;
 		}
 		strcpy(currentRecord->ipAddrs[index], ipAdd);
-		if(index != 9)
+		if(index < 9)
 		{
 			strcpy(currentRecord->ipAddrs[index + 1], "\0");
 		}

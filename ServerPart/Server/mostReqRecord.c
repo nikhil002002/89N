@@ -52,18 +52,18 @@ struct database *mostReqRecord(struct database *fRecord, char *message)
 		}
 		currentRecord = currentRecord->nextRecord;
 	}
-	char* recrd=NULL;
-	recrd=printFunction(currentRecord,recrd);
+	char recrd[200];
+	printFunction(fMostRequest,recrd);
 
 	strcpy(message, recrd);
 	return fMostRequest;
 }
 
-char *printFunction(struct database *first, char *recrd)
+void printFunction(struct database *first, char *recrd)
 {
-	char data[200], times[10];
-	recrd=data;
+	char data[200]={0}, times[10];
 	int index;
+
 	while(first != NULL)
 	{
 		index = 0;
@@ -80,5 +80,5 @@ char *printFunction(struct database *first, char *recrd)
 		strcat(data, "\n");
 		first = first->nextRecord;
 	}
-	return recrd;
+	strcpy(recrd,data);
 }
