@@ -1,8 +1,8 @@
 /*
  * ClientFunctions.c
- *
+ * Definitions of Support Functions Required in the Client Process
  *  Created on: Dec 14, 2014
- *      Author: nikhil
+ *      Authors: Nikhil Rajendran and Pranav Sarda
  */
 #include <string.h>
 #include <unistd.h>
@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include "ClientHeader.h"
 
+//Create Socket and Transmit Data
 int SetupTCPClientSocket(const char *serverIP, const char *serverPort)
 {
 
@@ -42,9 +43,8 @@ int SetupTCPClientSocket(const char *serverIP, const char *serverPort)
 		  return clientSock;
   }
 
-
+//User Defined Error Logger
 void DieWithErrorMessage(const char *msg, const char *detail) {
-  perror(msg);
   fputs(msg, stderr);
   fputs(": ", stderr);
   fputs(detail, stderr);
@@ -52,6 +52,8 @@ void DieWithErrorMessage(const char *msg, const char *detail) {
   exit(1);
 }
 
+
+//Validate Input Ip format
 int validateString(char *toValidateString)
 {
 	int field1,field2,field3,field4;

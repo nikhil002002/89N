@@ -2,24 +2,22 @@
  * ServerFnSupport.C
  * Definitions of Support Functions Required in the Server Process
  *  Created on: Dec 07, 2014
- *      Author: Pranav Sarda and Nikhil Rajendran
+ *      Authors: Pranav Sarda and Nikhil Rajendran
  */
 
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-//#include <netdb.h>
 #include <string.h>
 #include <stdio.h>
 #include "IpDomainDossierHeaders.h"
 
 char *mssg;
-//char clientIpl[16]={0};
 
+//Process Input Command and send message to client
 struct database *ProcessTCPClient(int clientSocket,struct database *fRecord) {
 
-  //strcpy(clientIpl,clientIP);
   dbLstPtr=fRecord;
   char buffer[BUFSIZE]; // Buffer for storing incoming data
   char *toSendBuffer;
@@ -37,6 +35,7 @@ struct database *ProcessTCPClient(int clientSocket,struct database *fRecord) {
   }
   ssize_t sendBufferLength=strlen(toSendBuffer)+1;
 
+  //Send Message to client
     ssize_t numBytesSent = send(clientSocket, toSendBuffer,sendBufferLength , 0);
     if (numBytesSent < 0)
     {
@@ -59,6 +58,7 @@ struct database *ProcessTCPClient(int clientSocket,struct database *fRecord) {
   return dbLstPtr;
 }
 
+//transmit buffer contents
 void sendBuffer(int clientSocket,char *sendBuf, ssize_t bufLen)
 {
 	ssize_t numBytesSent = send(clientSocket, sendBuf,bufLen , 0);
@@ -69,6 +69,7 @@ void sendBuffer(int clientSocket,char *sendBuf, ssize_t bufLen)
 	close(clientSocket);
 }
 
+//Recognize client command and process accordingly
 char* processCommand(const char *dataBuffer, const int dataLength,struct database *fRecord)
 {
 
@@ -113,7 +114,7 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 			if(strcmp(SERVERSHUTDOWNCODE,dataBuffer+2)==0)
 			{
 				eventLogger("Server Shut Down Request from Client");
-				char *sysmssg;//=malloc(50);
+				char *sysmssg;
 				sysmssg= writeFile(fRecord,fileNamePtr);
 				eventLogger(sysmssg);
 				exit(0);
@@ -134,6 +135,8 @@ char* processCommand(const char *dataBuffer, const int dataLength,struct databas
 	return mssg;
 }
 
+
+//Get Domain and IP details from Input command
 char **processData(const char *dataBufferp, const int dataLength,int command)
 {
 	const char *dataBuffer=dataBufferp;
@@ -164,6 +167,9 @@ char **processData(const char *dataBufferp, const int dataLength,int command)
 	}
 	return maPtrData;
 }
+
+
+//User defined Error logging
 void DieWithErrorMessage(const char *msg, const char *detail) {
 
   fputs(msg, stderr);
@@ -182,9 +188,3 @@ void DieWithErrorMessage(const char *msg, const char *detail) {
   }
   exit(1);
 }
-
-//void DieWithSystemMessage(const char *msg) {
-//  perror(msg);
-//  exit(1);
-//}
-

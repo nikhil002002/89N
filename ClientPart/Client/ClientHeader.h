@@ -1,8 +1,8 @@
 /*
  * ClientHeader.h
- *
+ * Declarations of Support functions required for Client Process
  *  Created on: Dec 13, 2014
- *      Author: nikhil
+ *      Authors: Nikhil Rajendran and Pranav Sarda
  */
 
 #ifndef CLIENTHEADER_H_
@@ -30,7 +30,5 @@ enum sizeConstants {
   MAXSTRINGLENGTH = 128,
   BUFSIZE = 512,
 };
-
-
 
 #endif /* CLIENTHEADER_H_ */

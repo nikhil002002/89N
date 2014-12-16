@@ -1,8 +1,8 @@
 /*
  * domainIP.C
- * Find IP of Domain from Database or Web
+ * To find the IP address of domain from Database or Web
  *  Created on: Dec 08, 2014
- *      Author: Pranav Sarda and Nikhil Rajendran
+ *      Authors: Pranav Sarda and Nikhil Rajendran
  */
 
 #include <stdio.h>
@@ -15,23 +15,28 @@
 #include <netinet/in.h>
 #include "IpDomainDossierHeaders.h"
 
-
-//char** domainIP(char *webName)
-//char **domainIP(struct database *fRecord, char *webNamep)
+// function to find IP address of a domain - returns a pointer to first node in the linked list database
+// parameter 1 - pointer to first node in the linked list
+// parameter 2 - pointer to domain name whose IP address is requested
+// parameter 3 - pointer to message about the return value
 struct database *domainIP(struct database *fRecord, char *webNamep, char *message)
 {
 	dbLstPtr=fRecord;
 	char** ipList;
 
 	struct database *currentRecord, *webRecord;
-	char domName[20],webName[20]; //ipList[160];
-	strncpy(webName,webNamep,sizeof(webName));
+	char domName[20],webName[20];
+	strncpy(webName, webNamep, sizeof(webName));
 	int index = 0;
+
+	// while loop to convert domain name to upper case for case insensitive comparison
 	while(webName[index] != '\0')
 	{
 		webName[index] = toupper(webName[index]);
 		index++;
 	}
+
+	// while loop to check if domain name is already present
 	currentRecord = fRecord;
 	while(currentRecord != NULL)
 	{
@@ -48,36 +53,35 @@ struct database *domainIP(struct database *fRecord, char *webNamep, char *messag
 		}
 		currentRecord = currentRecord->nextRecord;
 	}
+
+	// if to return IP addresses of already present domain name
 	if(currentRecord != NULL)
 	{
 		index = 0;
-		ipList=calloc(10,sizeof(char*));
-		while((currentRecord->ipAddrs[index][0] != '\0') && (index < 10))	//TODO : ask Index<10
+		ipList=calloc(10, sizeof(char*));
+
+		// while loop condition to check '\0' in the next row after valid IP address rows
+		// index < 10 as max number of IP addresses is assumed to be 10
+		while((currentRecord->ipAddrs[index][0] != '\0') && (index < 10))
 		{
 			ipList[index]=currentRecord->ipAddrs[index];
 			index++;
 		}
-//		index = 0;
-//		strcpy(ipList, currentRecord->ipAddrs[index]);
-//		index++;
-//		while((currentRecord->ipAddrs[index][0] != '\0') && (index < 10))
-//		{
-//			strcat(ipList, " ");
-//			strcat(ipList, currentRecord->ipAddrs[index]);
-//			index++;
-//		}
+
+		// to increment number of requests for the IP address of the domain by 1
 		currentRecord->numTimes++;
-//		strcpy(message, "The ip for the domain is returned.");
-//		return &ipList[0];
-//		return ipList;
-		char *eventmssg=malloc(100);
-		sprintf(eventmssg,"IP for domain %s requested",webNamep);
+
+		char *eventmssg = malloc(100);
+		sprintf(eventmssg,"IP for domain %s requested", webNamep);
 		eventLogger(eventmssg);
 		free(eventmssg);
 	}
+
+	// else to get the IP address of the domain from the web
 	else
 	{
-		ipList=findIPfromDomainName(webNamep);
+		// function call to function defined to get the IP from the Web
+		ipList = findIPfromDomainName(webNamep);
 
 		webRecord = (struct database *)malloc(sizeof(struct database));
 		if(webRecord == NULL)
@@ -86,16 +90,22 @@ struct database *domainIP(struct database *fRecord, char *webNamep, char *messag
 			eventLogger(message);
 			return NULL;
 		}
+
+		// to initialize number of requests for the IP address of the domain by 1
 		webRecord->numTimes = 1;
 		strcpy(webRecord->domainName, webNamep);
 		index = 0;
-		char** tempIpList=ipList;
+		char** tempIpList = ipList;
+
+		// index < 10 as max number of IP addresses is assumed to be 10
 		while((*(tempIpList) != NULL) && (index < 10))
 		{
 			strcpy(webRecord->ipAddrs[index], ipList[index]);
 			index++;
 			tempIpList++;
 		}
+
+		// assigning '\0' to the next row after valid IP address rows for easy detection of total valid IP address rows
 		if(index < 9)
 		{
 			strcpy(webRecord->ipAddrs[index], "\0");
@@ -104,79 +114,51 @@ struct database *domainIP(struct database *fRecord, char *webNamep, char *messag
 		fRecord = webRecord;
 
 		char *eventmssg=malloc(100);
-		sprintf(eventmssg,"IP for domain %s added.",webNamep);
+		sprintf(eventmssg, "IP for domain %s added.", webNamep);
 		eventLogger(eventmssg);
 		free(eventmssg);
-		//return ipList;
 	}
 
-	int ipcount=0;
+	int ipcount = 0;
 	char** tempIpList;
-	for(tempIpList=ipList;*(tempIpList)!=NULL;tempIpList++)
+
+	// to get the count of IP addresses
+	for(tempIpList = ipList; *(tempIpList) != NULL; tempIpList++)
 	{
 		ipcount++;
 	}
 
-	int lenBuff=strlen(webNamep)+(ipcount*16)+50;
-	char *toSendBuffer=calloc(lenBuff,sizeof(char));
+	int lenBuff = strlen(webNamep) + (ipcount*16) + 50;
+	char *toSendBuffer = calloc(lenBuff, sizeof(char));
 
-	strcat(toSendBuffer,"Requested Domain :");
-	strcat(toSendBuffer,webNamep);
-	strcat(toSendBuffer," IP Add: ");
+	strcat(toSendBuffer, "Requested Domain :");
+	strcat(toSendBuffer, webNamep);
+	strcat(toSendBuffer, " IP Add: ");
 
-	for(tempIpList=ipList;*(tempIpList)!=NULL;tempIpList++)
+	// to concatenate IP addresses for the domain
+	for(tempIpList = ipList; *(tempIpList) != NULL; tempIpList++)
 	{
 		strcat(toSendBuffer,ipList[--ipcount]);
 		strcat(toSendBuffer," ");
 	}
 
-
 	free(ipList);
 	strcpy(message, toSendBuffer);
 
-	char *eventmssg=malloc(150);
-	sprintf(eventmssg,"Record added/requested: %s ",message);
+	char *eventmssg = malloc(150);
+	sprintf(eventmssg, "Record added/requested: %s ", message);
 	eventLogger(eventmssg);
 	free(eventmssg);
 	return fRecord;
 }
 
+// function to get the IP address of a domain from the web
+// parameter 1 - pointer to domain name whose IP address is requested
 char **findIPfromDomainName(char *hostname)
 {
-//	 // Tell the system what kind(s) of address info we want
-//	  struct addrinfo addrCriteria;                   // Criteria for address match
-//	  memset(&addrCriteria, 0, sizeof(addrCriteria)); // Zero out structure
-//	  addrCriteria.ai_family = AF_UNSPEC;             // Any address family
-//	  addrCriteria.ai_socktype = SOCK_STREAM;         // Only stream sockets
-//	  addrCriteria.ai_protocol = IPPROTO_TCP;         // Only TCP protocol
-//
-//	  // Get address(es) associated with the specified name/service
-//	  struct addrinfo *addrList; // Holder for list of addresses returned
-//	  // Modify servAddr contents to reference linked list of addresses
-//	  int rtnVal = getaddrinfo(hostname, NULL, &addrCriteria, &addrList);
-//	  if (rtnVal != 0)
-//	    DieWithErrorMessage("getaddrinfo() failed", gai_strerror(rtnVal));
-//
-//	  // returned addresses
-//	  char clntName[INET_ADDRSTRLEN];
-//	  char** maIPList=NULL;
-////	  if((maIPList=malloc(1*sizeof(char*)))==NULL)
-////	  	DieWithErrorMessage("Memory allocation Failed for 1st IP","");
-//	  int index=2;
-//
-//	  struct addrinfo *addr;
-//
-//	  for ( addr= addrList; addr != NULL; addr = addr->ai_next) {
-//		  if (inet_ntop(PF_INET, addr->ai_addr, clntName, sizeof(clntName)) != NULL)
-//		  {
-//			  if((maIPList=realloc(maIPList,index*sizeof(char*)))==NULL)
-//			  	DieWithErrorMessage("Memory allocation Failed for IPs","");
-//			  maIPList[index-2]=clntName;
-//			  maIPList[index-1]=NULL;
-//			  index++;
-//		  }
-//	  }
 	struct in_addr **addr_list;
+
+	// Get IP from Domain Name
 	struct hostent *lh = gethostbyname(hostname);
 
 	char clntName[INET_ADDRSTRLEN];
@@ -188,6 +170,7 @@ char **findIPfromDomainName(char *hostname)
 
 	int i=0;
 
+	//Create Array of string pointers containing retrieved IP addresses
 	    for(i = 0; addr_list[i] != NULL; i++) {
 	    	  if (inet_ntop(PF_INET, test[i], clntName, sizeof(clntName)) != NULL)
 			  {
@@ -198,8 +181,8 @@ char **findIPfromDomainName(char *hostname)
 					free(maIPList);
 					DieWithErrorMessage("Memory allocation Failed for IPs",NULL);
 				  }
-				  int len;
 
+				  int len;
 				  len = strlen(clntName);
 				  if((maIPList[index-2] = (char *)malloc(len + 1))==NULL)
 				  {
@@ -215,5 +198,5 @@ char **findIPfromDomainName(char *hostname)
 			  }
 	    	printf("%s ", inet_ntoa(*addr_list[i]));
 	    }
-	  return maIPList;
+	  return maIPList;	//Return List of IP
 }

@@ -1,8 +1,8 @@
 /*
  * ClientProcess.c
- *
+ * The entire client process - the main program at the Client
  *  Created on: Dec 11, 2014
- *      Author: nikhil
+ *      Authors: Nikhil Rajendran and Pranav Sarda
  */
 
 #include <string.h>
@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include "ClientHeader.h"
 
+// Accepts various parameters depending on the request for the server
 int main(int argc, char *argv[]) {
 
   if (argc < 4) // Test for correct number of arguments
@@ -51,32 +52,17 @@ int main(int argc, char *argv[]) {
 			  tst+=strlen(argv[4])+1;
 			  strcpy(tst,argv[5]);
 		  }
-//		  int index;
-//		  for(index=5;index<argc;index++)
-//		  {
-//			  if(validateString(argv[index])==1)
-//			  {
-//				  lenArgOneAndTwo+=(strlen(argv[index])+1);
-//				  if((toSendBuffer=realloc(toSendBuffer,lenArgOneAndTwo))==NULL)
-//						  DieWithErrorMessage("Insufficient Memory","");
-//				  tst+=strlen(argv[index-1])+2;
-//				  strcpy(tst,argv[index]);
-//			  }
-//		  }
 	  }
-
    }
 
 
   char *serverIP = argv[1];     // Server address/name
-  //int serverPort = atoi(argv[2]); // Server Port number
 
 // Create a  TCP socket
   int clientSock = SetupTCPClientSocket(serverIP, argv[2]);
   if (clientSock < 0)
     DieWithErrorMessage("SetupTCPClientSocket() failed", "unable to connect");
 
-  //size_t bufStringLen = strlen(toSendBuffer); // Determine input length
   size_t bufStringLen = lenArgOneAndTwo; // Determine input length
 
   // Send the string to the server
@@ -87,10 +73,9 @@ int main(int argc, char *argv[]) {
   else if (sentBytes != bufStringLen)
     DieWithErrorMessage("send()", "Message not transmitted Completely");
 
-
   // Receive from the server
   int receivedBytes = 0; // Count of total bytes received
-  fputs("Received: ", stdout);     // Setup to print the echoed string
+  fputs("Received: ", stdout);
   char buffer[BUFSIZE]; // I/O buffer
   // Receive up to the buffer size (minus 1 to leave space for
   // a null terminator) bytes from the sender
@@ -99,7 +84,7 @@ int main(int argc, char *argv[]) {
       DieWithErrorMessage("recv() failed","");
     else if (receivedBytes == 0)
       DieWithErrorMessage("recv()", "connection closed prematurely");
-    //buffer[receivedBytes] = '\0';    // Terminate the string!
+    
     fputs(buffer, stdout);      // Print the buffer
 
   fputc('\n', stdout); // Print a final linefeed
@@ -107,5 +92,3 @@ int main(int argc, char *argv[]) {
   close(clientSock);
   exit(0);
 }
-
-

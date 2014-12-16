@@ -1,3 +1,10 @@
+/*
+ * MainServer.C
+ * The entire server process - the main program at the Server
+ *  Created on: Dec 07, 2014
+ *      Authors: Pranav Sarda and Nikhil Rajendran
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +19,7 @@ static char lastReqIp[20]={0};
 static time_t instance1, instance2;
 static const int MAXPENDINGREQ = 5; // Maximum outstanding connection requests allowed on server
 
-//Accepts Port Number, File Name and Accepted Time gap.
+//Accepts Port Number, File Name and Accepted Time Gap
 int main(int argc, char *argv[]) {
 
   //Initialize time variable for first run
@@ -36,7 +43,6 @@ int main(int argc, char *argv[]) {
 	  eventLogger("File not Found at startup...continuing..");
 	  free(mssg);		//Free allocated memory for message
   }
-
 
   // Create Server Socket
   int servSock; // Socket descriptor for server
@@ -67,9 +73,11 @@ int main(int argc, char *argv[]) {
 	 	 free(dbLstPtr);
 	  DieWithErrorMessage("Server listen() operation failed",NULL);
   }
-  for (;;) {
 
+  for (;;)
+  {
 	eventLogger("Server now Listening to Socket");
+	printf("The server is running.");
 	// Start Server
     struct sockaddr_in clientAddr; // Client address
 
@@ -106,7 +114,7 @@ int main(int argc, char *argv[]) {
       errorLogger("Unable to Retrieve Client address Continuing...");
       continue;
     }
-
+    // Check if last requested IP is same
     if((strcmp(clntName,lastReqIp)==0) && seconds<timeGap)
     {
     	char msg[20];
@@ -121,7 +129,6 @@ int main(int argc, char *argv[]) {
     	instance1=instance2;
     }
 
-
     char *eventmssg=malloc(150);
 	sprintf(eventmssg,"**********Session started for Client IP: %s **********",clntName);
 	errorLogger(eventmssg);
@@ -130,5 +137,4 @@ int main(int argc, char *argv[]) {
     dbLstPtr= ProcessTCPClient(clntSock,dbLstPtr);
 
   }
-
 }
